@@ -34,4 +34,4 @@ jobs:
         git init
         git add -A
         git commit -m 'deploy'
-        git push -f git@github.com:objectivehtml/coloardo-covid-data.git master:coloardo-covid-data
+        git push -f git@github.com:objectivehtml/colorado-covid-data.git master:coloardo-covid-data
