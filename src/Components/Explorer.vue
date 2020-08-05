@@ -13,6 +13,7 @@
                 <em>Click to toggle the various datasets.</em>
             </div>
             <canvas v-if="response" ref="chart" />
+            <p><a href="https://data-cdphe.opendata.arcgis.com/datasets/cdphe-covid19-county-level-open-data-repository/data">SOURCE: https://data-cdphe.opendata.arcgis.com/datasets/cdphe-covid19-county-level-open-data-repository/data</a></p>
         </form>
         <div v-if="activity" class="absolute top-0 left-0 flex w-full h-full justify-center items-center">
             <activity-indicator type="SquareFold" />
