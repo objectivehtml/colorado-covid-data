@@ -25,6 +25,9 @@ jobs:
     # Runs a set of commands using the runners shell
     - name: Deploy to Github Pages
       run: |
+        git config --global user.email "justin@objectivehtml.com"
+        git config --global user.name "Justin Kimbrell"
+        
         npm install
         npm run build
         cd dist
