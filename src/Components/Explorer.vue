@@ -9,6 +9,9 @@
                     {{ value }}
                 </option>
             </select-field>
+            <div class="mb-3">
+                <em>Click to toggle the various datasets.</em>
+            </div>
             <canvas v-if="response" ref="chart" />
         </form>
         <div v-if="activity" class="absolute top-0 left-0 flex w-full h-full justify-center items-center">
@@ -101,9 +104,6 @@ export default {
             });
         },
         render() { 
-
-            console.log(JSON.stringify(this.filter({Desc_: 'Total Testing Rate Per 100,000 People in Colorado by County'})));
-
             /*
             0: "Case Rates Per 100,000 People in Colorado by County"
             1: "Colorado Case Counts by County"
@@ -120,8 +120,6 @@ export default {
                 }
             };
             
-            // const defaults = ['Total Testing Rate Per 100,000 People in Colorado by County'];
-
             const dates = this.dates().reduce((carry, key) => {
                 return Object.assign(carry, {
                     [key]: defaults.reduce((carry, desc) => {
