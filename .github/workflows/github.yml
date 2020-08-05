@@ -22,16 +22,9 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Runs a set of commands using the runners shell
-    - name: Deploy to Github Pages
-      run: |
-        git config --global user.email "justin@objectivehtml.com"
-        git config --global user.name "Justin Kimbrell"
-        
-        npm install
-        npm run build
-        cd dist
-        git init
-        git add -A
-        git commit -m 'deploy'
-        git push -f git@github.com:objectivehtml/colorado-covid-data.git master:gh-pages
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@3.5.9
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: dist # The folder the action should deploy.
