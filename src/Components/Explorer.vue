@@ -26,7 +26,7 @@ import SquareFold from '@vue-interface/activity-indicator/src/types/SquareFold';
 import InputField from '@vue-interface/input-field';
 import SelectField from '@vue-interface/select-field';
 
-const source = 'http://opendata.arcgis.com/datasets/1456d8d43486449292e5784dcd9ce4a7_0.geojson';
+const source = 'https://opendata.arcgis.com/datasets/1456d8d43486449292e5784dcd9ce4a7_0.geojson';
 
 register({
     'square-fold': SquareFold
