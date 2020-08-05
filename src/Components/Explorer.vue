@@ -67,8 +67,12 @@ export default {
                 return Object.keys(subject).indexOf(k)>-1 && values[k] == subject[k];
             });
         },
-        filter( filters) {
-            filters = Object.assign({}, this.filters, filters);
+        filter(filters) {
+            const userFilters = Object.entries(this.filters).filter(([key, value]) => {
+                return !!value;
+            });
+
+            filters = Object.assign({}, Object.fromEntries(userFilters), filters);
 
             return this.response.features.filter(({ properties }) => {
                 return this.contains(properties, filters);
@@ -98,6 +102,8 @@ export default {
         },
         render() { 
 
+            console.log(JSON.stringify(this.filter({Desc_: 'Total Testing Rate Per 100,000 People in Colorado by County'})));
+
             /*
             0: "Case Rates Per 100,000 People in Colorado by County"
             1: "Colorado Case Counts by County"
@@ -107,6 +113,12 @@ export default {
             */
 
             const defaults = this.extractUniqueValues(this.response, 'Desc_');
+
+            const additionalFilters = {
+                'Total COVID-19 Tests Performed in Colorado by County': {
+                    Metric: 'Total Tests Performed'
+                }
+            };
             
             // const defaults = ['Total Testing Rate Per 100,000 People in Colorado by County'];
 
@@ -121,12 +133,13 @@ export default {
             }, {});            
 
             const colors = randomcolor({
-                count: defaults.length
+                count: defaults.length,
+                luminosity: 'bright'
             });
 
             const datasets = defaults.map((key, i) => {
-                this.filter({Desc_: key}).forEach(({ properties }) => {
-                    dates[properties.Date][key] = typeof properties.Value !== 'null' ? properties.Value : properties.Rate;
+                this.filter(Object.assign({Desc_: key}, additionalFilters[key])).forEach(({ properties }) => {
+                    dates[properties.Date][key] = properties.Value || properties.Rate;
                 });
 
                 const data = Object.entries(dates).map(([date, subject]) => subject[key]);
@@ -141,8 +154,6 @@ export default {
                     };
                 }
             }).filter(value => !!value);
-
-            console.log(datasets);
 
             let chart = new Chart(this.$refs.chart, {
                 type: 'line',
