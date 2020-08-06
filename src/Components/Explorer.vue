@@ -1,6 +1,10 @@
 <template>
     <div>
         <form v-if="response" class="container mx-auto">
+            <h1>Colorado COVID-19 Data</h1>
+            <div class="mb-3">
+                <em>Be sure to use a desktop, tablet, or larger screen to view the chart. You may click to toggle the various datasets.</em>
+            </div>
             <select-field v-model="filters.COUNTY" name="test" label="County" :value="filters.COUNTY" @input="fetch">
                 <option value="">
                     All Counties
@@ -9,9 +13,6 @@
                     {{ value }}
                 </option>
             </select-field>
-            <div class="mb-3">
-                <em>Click to toggle the various datasets.</em>
-            </div>
             <canvas v-if="response" ref="chart" />
             <div class="mt-3 text-center">
                 <em><a href="https://data-cdphe.opendata.arcgis.com/datasets/cdphe-covid19-county-level-open-data-repository/data">SOURCE: https://data-cdphe.opendata.arcgis.com/datasets/cdphe-covid19-county-level-open-data-repository/data</a></em>
