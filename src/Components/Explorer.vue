@@ -2,10 +2,12 @@
     <div>
         <form v-if="response" class="container mx-auto">
             <h1>Colorado COVID-19 Data</h1>
+
             <div class="mb-3">
                 <em>Be sure to use a desktop, tablet, or larger screen to view the chart. You may click to toggle the various datasets.</em>
             </div>
-            <select-field v-model="filters.COUNTY" name="test" label="County" :value="filters.COUNTY" @input="fetch">
+
+            <select-field v-model="filters.COUNTY" name="test" label="County" :value="filters.COUNTY" @input="() => currentDatasets = datasets()">
                 <option value="">
                     All Counties
                 </option>
@@ -13,7 +15,15 @@
                     {{ value }}
                 </option>
             </select-field>
-            <canvas v-if="response" ref="chart" />
+
+            <chart
+                v-if="response"
+                :key="filters.COUNTY"
+                :labels="currentDatasets.labels"
+                :datasets="currentDatasets.datasets"
+                @load-start="activity = true"
+                @load-stop="activity = false" />
+
             <div class="mt-3 text-center">
                 <em><a href="https://data-cdphe.opendata.arcgis.com/datasets/cdphe-covid19-county-level-open-data-repository/data">SOURCE: https://data-cdphe.opendata.arcgis.com/datasets/cdphe-covid19-county-level-open-data-repository/data</a></em>
             </div>
@@ -26,8 +36,8 @@
 
 <script>
 import Axios from 'axios';
-import Chart from 'chart.js';
 import randomcolor from 'randomcolor';
+import Chart from './Chart';
 import { ActivityIndicator, register } from '@vue-interface/activity-indicator';
 import SquareFold from '@vue-interface/activity-indicator/src/types/SquareFold';
 import InputField from '@vue-interface/input-field';
@@ -43,14 +53,22 @@ export default {
     name: 'Explorer',
     components: {
         ActivityIndicator,
+        Chart,
         SelectField
     },
-    data() {
+    data() {        
+        const colors = randomcolor({
+            count: 5,
+            luminosity: 'bright'
+        });
+
         return {
+            colors,
             source,
             name: null,
             response: null,
             activity: false,
+            currentDatasets: null,
             filters: {
                 COUNTY: this.get('county')
             },
@@ -104,18 +122,10 @@ export default {
                 this.activity = false;
                 this.response = data;
                 this.name = data.name;
-                this.$nextTick(this.render);
+                this.currentDatasets = this.datasets();
             });
         },
-        render() { 
-            /*
-            0: "Case Rates Per 100,000 People in Colorado by County"
-            1: "Colorado Case Counts by County"
-            2: "Number of Deaths by County"
-            3: "Total COVID-19 Tests Performed in Colorado by County"
-            4: "Total Testing Rate Per 100,000 People in Colorado by County"
-            */
-
+        datasets() {
             const defaults = this.extractUniqueValues(this.response, 'Desc_');
 
             const additionalFilters = {
@@ -132,12 +142,7 @@ export default {
                         });
                     }, {})
                 });
-            }, {});            
-
-            const colors = randomcolor({
-                count: defaults.length,
-                luminosity: 'bright'
-            });
+            }, {});    
 
             const datasets = defaults.map((key, i) => {
                 this.filter(Object.assign({Desc_: key}, additionalFilters[key])).forEach(({ properties }) => {
@@ -151,34 +156,23 @@ export default {
                         fill: false,
                         label: key,
                         data,
-                        borderColor: colors[i],
-                        backgroundColor: colors[i],
+                        borderColor: this.colors[i],
+                        backgroundColor: this.colors[i],
                     };
                 }
             }).filter(value => !!value);
 
-            let chart = new Chart(this.$refs.chart, {
-                type: 'line',
-                data: {
-                    datasets: datasets,
-                    labels: Object.keys(dates).map(value => {
-                        const date = new Date(value);
+            const labels = Object.keys(dates).map(value => {
+                const date = new Date(value);
 
-                        return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
-                    })
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                suggestedMin: 50,
-                                suggestedMax: 100
-                            }
-                        }]
-                    }
-                }
+                return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
             });
-        },
+
+            return {
+                datasets,
+                labels
+            };
+        }
     }
 };
 </script>
