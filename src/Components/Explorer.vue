@@ -19,8 +19,8 @@
             <chart
                 v-if="response"
                 :key="filters.COUNTY"
-                :labels="currentDatasets.labels"
-                :datasets="currentDatasets.datasets"
+                :options="chartOptions"
+                :datasets="currentDatasets"
                 @load-start="activity = true"
                 @load-stop="activity = false" />
 
@@ -73,6 +73,29 @@ export default {
                 COUNTY: this.get('county')
             },
         };
+    },
+    computed: {
+        chartOptions() {
+            return {
+                responsive: true,
+                hoverMode: 'index',
+                stacked: false,
+                title: {
+                    display: true,
+                    text: this.name
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                quarter: 'MMM YYYY'
+                            }
+                        }
+                    }
+                }
+            };
+        }
     },
     mounted() {
         this.fetch();
@@ -127,10 +150,41 @@ export default {
         },
         datasets() {
             const defaults = this.extractUniqueValues(this.response, 'Desc_');
-
+            
             const additionalFilters = {
                 'Total COVID-19 Tests Performed in Colorado by County': {
                     Metric: 'Total Tests Performed'
+                }
+            };
+
+            const datasets = defaults.map((key, i) => {
+                const dataset = {
+                    label: key,
+                    data: [],
+                };
+                
+                const filters = Object.assign({
+                    Desc_: key
+                }, additionalFilters[key]);
+                
+                this.filter(filters).forEach(({ properties }) => {
+                    dataset.data.push({
+                        label: properties.Date,
+                        borderColor: this.colors[i],
+                        backgroundColor: this.colors[i],
+                        fill: false,
+                        x: new Date(properties.Date),
+                        y: properties.Value || properties.Rate
+                    });
+                });
+
+                return dataset;
+            });
+
+            /*
+            const datasetOptions = {
+                'Case Rates Per 100,000 People in Colorado by County': {
+                    // yAxisID: 'right-y-axis'
                 }
             };
             
@@ -152,26 +206,26 @@ export default {
                 const data = Object.entries(dates).map(([date, subject]) => subject[key]);
 
                 if(data.filter(value => value !== null).length) {
-                    return {
+                    return Object.assign({
                         fill: false,
                         label: key,
                         data,
+                        // yAxisID: 'left-y-axis',
                         borderColor: this.colors[i],
                         backgroundColor: this.colors[i],
-                    };
+                    }, datasetOptions[key]);
                 }
             }).filter(value => !!value);
 
             const labels = Object.keys(dates).map(value => {
-                const date = new Date(value);
-
-                return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+                return new Date(value);
             });
+            */
 
-            return {
-                datasets,
-                labels
-            };
+            return [{
+                label: 'test',
+                data: [{y: 1, x: new Date('2020-07-01')},{y: 2, x: new Date('2020-07-02')}]
+            }];
         }
     }
 };

@@ -4,7 +4,7 @@ import Chart from 'chart.js';
 export default {
     props: {
         datasets: Array,
-        labels: Array,
+        options: Object
     },
     data() {
         return {
@@ -12,13 +12,12 @@ export default {
         };
     },
     mounted() {
-        this.chart = new Chart(this.$el, {
+        this.chart = new Chart(this.$el, Object.assign({
             type: 'line',
             data: {
-                labels: this.labels,
                 datasets: this.datasets,
-            }
-        });
+            },
+        }, this.options));
     },
     render(h) {
         return h('canvas');
